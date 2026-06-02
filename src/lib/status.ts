@@ -29,3 +29,9 @@ export const LEVEL_LABEL: Record<StationLevel, string> = {
 export function statusLabel(s: StatusInput): string {
   return LEVEL_LABEL[stationLevel(s)];
 }
+
+/** Share of the station's capacity currently filled with bikes, as a percent. */
+export function fillPercent(s: Pick<Station, 'bikes' | 'capacity'>): number {
+  if (!s.capacity || s.capacity <= 0) return 0;
+  return Math.round((s.bikes / s.capacity) * 100);
+}

@@ -4,20 +4,19 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSpatialInput } from 'mrbd-ui-kit';
 import type { RankedStation, LatLng } from '../api/types';
-import { stationLevel, LEVEL_COLOR } from '../lib/status';
+import { stationLevel, LEVEL_COLOR, fillPercent } from '../lib/status';
 import { StationStatusCard } from '../components/StationStatusCard';
 
 const MAP_TILES = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
 const DEFAULT_CENTER: [number, number] = [46.81, -71.22]; // Québec
 
-// Iridescent "you are here" ring (à la native Display maps).
+// "You are here" — blue location dot.
 function userIcon(): L.DivIcon {
   const html = `<div style="
-    width:24px;height:24px;border-radius:9999px;
-    background:conic-gradient(from 0deg,#67e8f9,#a78bfa,#f472b6,#67e8f9);
+    width:16px;height:16px;border-radius:9999px;
+    background:#3b82f6;border:2px solid #fff;
+    box-shadow:0 0 0 4px rgba(59,130,246,0.35);
     transform:translate(-50%,-50%);
-    -webkit-mask:radial-gradient(circle 7px at 50% 50%, transparent 7px, #000 8px);
-    mask:radial-gradient(circle 7px at 50% 50%, transparent 7px, #000 8px);
   "></div>`;
   return L.divIcon({ className: '', html, iconSize: [0, 0], iconAnchor: [0, 0] });
 }
@@ -32,20 +31,20 @@ interface Props {
   onOpenList: () => void;
 }
 
-// A pin showing the available-bike count, coloured by availability.
-function bikeIcon(count: number, fill: string, ring: string, selected: boolean): L.DivIcon {
-  const size = selected ? 30 : 22;
-  const font = selected ? 14 : 12;
+// A pin showing the fill percentage (bikes / capacity), coloured by availability.
+function bikeIcon(label: string, fill: string, ring: string, selected: boolean): L.DivIcon {
+  const size = selected ? 32 : 24;
+  const font = selected ? 13 : 11;
   const border = selected ? '#ffffff' : ring;
   const glow = selected ? '0 0 0 3px rgba(255,255,255,0.25)' : '0 0 0 2px rgba(0,0,0,0.5)';
   const html = `<div style="
     display:flex;align-items:center;justify-content:center;
-    min-width:${size}px;height:${size}px;padding:0 5px;
+    min-width:${size}px;height:${size}px;padding:0 6px;
     border-radius:9999px;background:${fill};border:2px solid ${border};
     color:#fff;font:700 ${font}px/1 Nunito,system-ui,sans-serif;
     box-shadow:${glow};transform:translate(-50%,-50%);
     transition:min-width .15s ease,height .15s ease;
-  ">${count}</div>`;
+  ">${label}</div>`;
   return L.divIcon({ className: '', html, iconSize: [0, 0], iconAnchor: [0, 0] });
 }
 
@@ -140,7 +139,7 @@ export function MapScreen({
             <Marker
               key={s.id}
               position={[s.lat, s.lon]}
-              icon={bikeIcon(s.bikes, c.fill, c.ring, isSel)}
+              icon={bikeIcon(`${fillPercent(s)}%`, c.fill, c.ring, isSel)}
               zIndexOffset={isSel ? 1000 : 0}
             />
           );

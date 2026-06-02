@@ -1,7 +1,7 @@
 import { Text } from 'mrbd-ui-kit';
 import { Bike, Zap } from 'lucide-react';
 import type { RankedStation } from '../api/types';
-import { stationLevel, LEVEL_LABEL } from '../lib/status';
+import { stationLevel, LEVEL_LABEL, fillPercent } from '../lib/status';
 import { formatDistance } from '../lib/distance';
 
 interface Props {
@@ -34,6 +34,9 @@ export function StationStatusCard({ station, index, total }: Props) {
       </Text>
 
       <div className="mt-1 flex items-center gap-3 text-base text-white/90">
+        <span className="font-bold" style={{ color: STATUS_TEXT[level] }}>
+          {fillPercent(station)}%
+        </span>
         <span className="inline-flex items-center gap-1">
           <Bike className="size-4" />
           {station.bikes}
