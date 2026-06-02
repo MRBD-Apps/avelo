@@ -31,15 +31,16 @@ export function ListScreen({ stations, onSelect, onBack }: Props) {
       </div>
 
       <ScrollContainer>
-        {stations.map((s) => {
-          const c = LEVEL_COLOR[stationLevel(s)];
-          return (
-            <Button
-              key={s.id}
-              id={`st-${s.id}`}
-              onClick={() => onSelect(s.id)}
-              className="w-full justify-between"
-            >
+        <div className="flex flex-col gap-3 px-1 py-1">
+          {stations.map((s) => {
+            const c = LEVEL_COLOR[stationLevel(s)];
+            return (
+              <Button
+                key={s.id}
+                id={`st-${s.id}`}
+                onClick={() => onSelect(s.id)}
+                className="w-full justify-between"
+              >
               <span className="flex min-w-0 items-center gap-2">
                 <span
                   className="size-2.5 shrink-0 rounded-full"
@@ -50,9 +51,10 @@ export function ListScreen({ stations, onSelect, onBack }: Props) {
               <span className="ml-2 shrink-0 text-sm text-gray-300">
                 {s.bikes}/{s.docks} · {formatDistance(s.distanceMeters)}
               </span>
-            </Button>
-          );
-        })}
+              </Button>
+            );
+          })}
+        </div>
       </ScrollContainer>
     </div>
   );

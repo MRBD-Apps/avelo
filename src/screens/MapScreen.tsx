@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, CircleMarker, useMap } from 'react-leaflet';
-import type { Map as LeafletMap } from 'leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSpatialInput } from 'mrbd-ui-kit';
 import type { RankedStation, LatLng } from '../api/types';
@@ -20,15 +20,64 @@ interface Props {
   onOpenList: () => void;
 }
 
-// Fly to the selected station and keep the map sized correctly.
-function MapController({ target }: { target: [number, number] | null }) {
+// A pin showing the available-bike count, coloured by availability.
+function bikeIcon(count: number, fill: string, ring: string, selected: boolean): L.DivIcon {
+  const size = selected ? 30 : 22;
+  const font = selected ? 14 : 12;
+  const border = selected ? '#ffffff' : ring;
+  const glow = selected ? '0 0 0 3px rgba(255,255,255,0.25)' : '0 0 0 2px rgba(0,0,0,0.5)';
+  const html = `<div style="
+    display:flex;align-items:center;justify-content:center;
+    min-width:${size}px;height:${size}px;padding:0 5px;
+    border-radius:9999px;background:${fill};border:2px solid ${border};
+    color:#fff;font:700 ${font}px/1 Nunito,system-ui,sans-serif;
+    box-shadow:${glow};transform:translate(-50%,-50%);
+    transition:min-width .15s ease,height .15s ease;
+  ">${count}</div>`;
+  return L.divIcon({ className: '', html, iconSize: [0, 0], iconAnchor: [0, 0] });
+}
+
+// Lives inside MapContainer: owns the map instance for input + smooth follow.
+function MapEngine({
+  targetLat,
+  targetLon,
+  onPrev,
+  onNext,
+  onOpenList,
+}: {
+  targetLat: number | null;
+  targetLon: number | null;
+  onPrev: () => void;
+  onNext: () => void;
+  onOpenList: () => void;
+}) {
   const map = useMap();
+
   useEffect(() => {
     map.invalidateSize();
   }, [map]);
+
+  // Smoothly follow the selected station (only when its coordinates change).
   useEffect(() => {
-    if (target) map.flyTo(target, Math.max(map.getZoom(), 15), { duration: 0.5 });
-  }, [target, map]);
+    if (targetLat != null && targetLon != null) {
+      map.flyTo([targetLat, targetLon], Math.max(map.getZoom(), 15), {
+        duration: 0.7,
+        easeLinearity: 0.25,
+      });
+    }
+  }, [targetLat, targetLon, map]);
+
+  // Temple-touch / D-pad: Left/Right pick stations, Up/Down zoom, tap opens list.
+  useSpatialInput({
+    onPress: (key) => {
+      if (key === 'left') onPrev();
+      else if (key === 'right') onNext();
+      else if (key === 'up') map.zoomIn();
+      else if (key === 'down') map.zoomOut();
+      else if (key === 'select') onOpenList();
+    },
+  });
+
   return null;
 }
 
@@ -41,19 +90,7 @@ export function MapScreen({
   onNext,
   onOpenList,
 }: Props) {
-  const mapRef = useRef<LeafletMap | null>(null);
   const selected = stations.find((s) => s.id === selectedId) ?? null;
-
-  // Temple-touch / D-pad: Left/Right pick stations, Up/Down zoom, tap opens the list.
-  useSpatialInput({
-    onPress: (key) => {
-      if (key === 'left') onPrev();
-      else if (key === 'right') onNext();
-      else if (key === 'up') mapRef.current?.zoomIn();
-      else if (key === 'down') mapRef.current?.zoomOut();
-      else if (key === 'select') onOpenList();
-    },
-  });
 
   const center: [number, number] = selected
     ? [selected.lat, selected.lon]
@@ -64,7 +101,6 @@ export function MapScreen({
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        ref={mapRef}
         center={center}
         zoom={15}
         zoomControl={false}
@@ -73,7 +109,13 @@ export function MapScreen({
         style={{ height: '100%', width: '100%', background: '#000' }}
       >
         <TileLayer url={DARK_TILES} subdomains="abcd" maxZoom={20} />
-        <MapController target={selected ? [selected.lat, selected.lon] : null} />
+        <MapEngine
+          targetLat={selected ? selected.lat : null}
+          targetLon={selected ? selected.lon : null}
+          onPrev={onPrev}
+          onNext={onNext}
+          onOpenList={onOpenList}
+        />
 
         {userPos && (
           <CircleMarker
@@ -87,16 +129,11 @@ export function MapScreen({
           const c = LEVEL_COLOR[stationLevel(s)];
           const isSel = s.id === selectedId;
           return (
-            <CircleMarker
+            <Marker
               key={s.id}
-              center={[s.lat, s.lon]}
-              radius={isSel ? 11 : 7}
-              pathOptions={{
-                color: isSel ? '#fff' : c.ring,
-                weight: isSel ? 3 : 2,
-                fillColor: c.fill,
-                fillOpacity: 0.95,
-              }}
+              position={[s.lat, s.lon]}
+              icon={bikeIcon(s.bikes, c.fill, c.ring, isSel)}
+              zIndexOffset={isSel ? 1000 : 0}
             />
           );
         })}
