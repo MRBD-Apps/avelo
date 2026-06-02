@@ -15,7 +15,7 @@ export function StationStatusCard({ station, index, total }: Props) {
   const c = LEVEL_COLOR[level];
 
   return (
-    <Card className="flex flex-col gap-1">
+    <Card className="flex flex-col gap-1 border border-white/10 bg-neutral-950/90 backdrop-blur-sm">
       <div className="flex items-center justify-between gap-2">
         <Text weight="bold" className="truncate">
           {station.name}

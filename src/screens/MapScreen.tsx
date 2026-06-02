@@ -102,16 +102,16 @@ export function MapScreen({
         })}
       </MapContainer>
 
-      {/* Interaction hint */}
-      <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center">
-        <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-gray-300">
+      {/* Interaction hint — above Leaflet panes (z up to ~700) */}
+      <div className="pointer-events-none absolute inset-x-0 top-2 z-[1000] flex justify-center">
+        <span className="rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-gray-200">
           Bornes ‹ ›   Zoom + −   Appui : liste
         </span>
       </div>
 
-      {/* Selected station status */}
+      {/* Selected station status — above Leaflet panes */}
       {selected && (
-        <div className="absolute inset-x-2 bottom-2">
+        <div className="absolute inset-x-2 bottom-2 z-[1000]">
           <StationStatusCard station={selected} index={selectedIndex} total={stations.length} />
         </div>
       )}
