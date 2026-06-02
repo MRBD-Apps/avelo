@@ -3,14 +3,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700&display=swap');
 
 @theme {
-  /* Bold sans-serif recommended for legibility on the additive display */
   --font-sans: 'Nunito', 'Noto Sans', sans-serif;
 }
 
 :root {
   color-scheme: dark;
-  /* Theme the whole app from one variable (buttons, focus ring, glows, borders) */
-  --color-mrbd-accent: #5b9dff;
+  /* àVélo green accent */
+  --color-mrbd-accent: #10b981;
 }
 
 html,
@@ -18,5 +17,10 @@ body,
 #root {
   margin: 0;
   height: 100%;
+  background: #000;
+}
+
+/* Dark Leaflet base so tiles never flash white */
+.leaflet-container {
   background: #000;
 }

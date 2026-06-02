@@ -1,89 +1,68 @@
-# MRBD App Template
+# Avélo · Meta Ray-Ban Display
 
-A clean starter for building **Meta Ray-Ban Display** web apps.
+Find **àVélo** bike-share stations around you, **hands-free**, on your **Meta Ray-Ban Display**.
 
-React + Vite + TypeScript + Tailwind v4 + [`mrbd-ui-kit`](https://github.com/michaelcummings12/mrbd-ui-kit),
-with spatial (D-pad) navigation, a 600×600 dark layout, unit testing, and a ready-to-go
-**PWA manifest + app icons** so your app shows up properly in the glasses launcher.
+A glanceable map of nearby [àVélo](https://www.accesvelo.ca/) (Québec City) stations: see live
+**bikes / docks** availability, **swipe left/right** to browse stations nearest-first, **swipe
+up/down** to zoom, and tap to open the full list.
 
-## Use this template
+> Community project, **not affiliated** with àVélo / RTC. Data comes from the public
+> [GBFS](https://gbfs.org/) feeds (`station_information` + `station_status`).
 
-Click **“Use this template”** on GitHub, or:
+## 📲 Install on the glasses
+
+```
+fb-viewapp://web_app_deep_link?appName=Av%C3%A9lo&appUrl=https%3A%2F%2Favelo.vercel.app%2F
+```
+
+Or open it in the glasses' browser: **https://avelo.vercel.app**
+
+## ✨ Features
+
+- **Live availability** — bikes (with electric/mechanical split) and free docks per station,
+  refreshed every 20 s, colour-coded (green available · amber low · red empty · grey offline).
+- **Nearest-first** — the closest ~30 stations to you, sorted by distance.
+- **Swipe to browse** — Left/Right cycles stations (map flies to the selection + status card),
+  Up/Down zooms; tap opens the list.
+- **List screen** — scroll all nearby stations with status, pick one to center it on the map.
+
+## 🏗️ How it works
+
+The àVélo GBFS feeds don't send CORS headers, so the browser can't read them cross-origin.
+A tiny **Vercel Edge Function** (`api/stations.ts`) fetches `station_information` +
+`station_status` server-side, merges them by `station_id`, and serves clean JSON from the same
+origin. The client computes distances from your geolocation, ranks stations, and renders them.
+
+```
+api/stations.ts         # Edge proxy: merges the two GBFS feeds → /api/stations
+src/api/                # client fetch + types
+src/lib/                # distance, ranking, status level/colour (with tests)
+src/hooks/              # geolocation + stations polling
+src/screens/MapScreen   # Leaflet map, markers, swipe selection, status card
+src/screens/ListScreen  # nearby stations list
+```
+
+## 🛠️ Tech stack
+
+React 19 · Vite · TypeScript · Tailwind v4 · [`mrbd-ui-kit`](https://github.com/michaelcummings12/mrbd-ui-kit)
+· Leaflet / react-leaflet (CartoDB dark tiles) · Vitest. Built from
+[mrbd-app-template](https://github.com/MRBD-Apps/mrbd-app-template).
+
+## 🚀 Development
 
 ```bash
-gh repo create my-org/my-app --public --template MRBD-Apps/mrbd-app-template --clone
-cd my-app
 npm install
-npm run dev
-```
+npm run test          # unit tests (distance, ranking, status)
+npm run build         # production build
 
-## Scripts
-
-```bash
-npm run dev       # dev server (http://localhost:5173)
-npm run test      # unit tests (Vitest + Testing Library)
-npm run build     # production build (dist/)
-npm run preview   # preview the production build
-npm run lint      # eslint
-```
-
-## What's inside
-
-```
-src/
-  App.tsx              # DisplayRoot + icon dock navbar (kit <Button>)
-  screens/             # HomeScreen (Counter, Pill, ScrollContainer list) + AboutScreen (asChild link)
-  components/Counter.tsx + test   # example interactive component using the kit
-  lib/format.ts + test            # example pure util + unit test
-  index.css            # tailwind + mrbd-ui-kit/css + Nunito font + accent variable
-public/
-  favicon.svg / favicon.png / icon-512.png
-  manifest.webmanifest # PWA manifest the glasses launcher reads for the app icon
-```
-
-It demonstrates the kit essentials: `DisplayRoot`, `Button`, `Text`, `Card`, `Pill`,
-`ScrollContainer`, `usePreferredFocus`, lucide icons, the icon-dock navbar pattern, and theming
-via a single CSS variable.
-
-## Display notes (baked in)
-
-- **Spatial navigation only.** Kit components activate on **Enter / temple-touch** through the
-  focus engine — they're driven by the D-pad, not the mouse. Arrow keys move focus.
-- **No pure white / no drop-shadows.** Use `text-mrbd-text` and outer glows (`shadow-mrbd-glow`).
-- **Theme in one line:** change `--color-mrbd-accent` in `src/index.css`.
-- **Adding a map?** Install `leaflet` + `react-leaflet` and use the CartoDB `dark_all` tiles with
-  `zoomControl={false}`; drive zoom/recenter from kit `<Button>`s via `useMap()`.
-
-## Deploy + install on the glasses
-
-Deploy to a public HTTPS URL (geolocation/PWA need HTTPS):
-
-```bash
+# The stations API is a Vercel function, so run the full stack with:
 npm i -g vercel
-vercel --prod
+vercel dev            # serves the app + /api/stations locally
 ```
 
-Then open this deep link **on the glasses** to add the app (replace name + URL):
+> Geolocation needs HTTPS (or localhost). To preview in a desktop browser, simulate a position
+> in Québec in DevTools (e.g. `46.81, -71.22`).
 
-```
-fb-viewapp://web_app_deep_link?appName=MRBD%20App&appUrl=https%3A%2F%2Fyour-app.vercel.app%2F
-```
-
-> The launcher icon comes from `manifest.webmanifest` + the **PNG** icons (and `apple-touch-icon`),
-> not the SVG favicon. Keep a 256×256 (and 512×512) PNG in `public/` and referenced in the
-> manifest. After changing the icon, **re-add** the app on the glasses so the launcher re-reads it.
-
-## Customize
-
-1. Rename in `package.json`, `index.html` (`<title>` + `<meta description>`), and
-   `public/manifest.webmanifest` (`name`, `short_name`, `description`).
-2. Replace `public/favicon.svg` and regenerate the PNGs:
-   ```bash
-   rsvg-convert -w 256 -h 256 public/favicon.svg -o public/favicon.png
-   rsvg-convert -w 512 -h 512 public/favicon.svg -o public/icon-512.png
-   ```
-3. Build your screens in `src/screens/` and wire them in `src/App.tsx`.
-
-## License
+## 📄 License
 
 [MIT](./LICENSE)

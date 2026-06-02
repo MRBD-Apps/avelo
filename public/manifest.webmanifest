@@ -1,7 +1,7 @@
 {
-  "name": "MRBD App",
-  "short_name": "MRBD App",
-  "description": "Meta Ray-Ban Display web app.",
+  "name": "Avélo",
+  "short_name": "Avélo",
+  "description": "àVélo bike-share stations on Meta Ray-Ban Display.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

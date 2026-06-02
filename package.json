@@ -1,9 +1,9 @@
 {
-  "name": "mrbd-app-template",
+  "name": "avelo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Starter template for Meta Ray-Ban Display web apps (React + Vite + Tailwind v4 + mrbd-ui-kit).",
+  "description": "àVélo bike-share stations on Meta Ray-Ban Display — nearby stations, swipe to browse, live status.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -13,10 +13,12 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
     "lucide-react": "^1.17.0",
     "mrbd-ui-kit": "^0.5.3",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -24,6 +26,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
