@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useSpatialInput } from 'mrbd-ui-kit';
@@ -7,8 +7,20 @@ import type { RankedStation, LatLng } from '../api/types';
 import { stationLevel, LEVEL_COLOR } from '../lib/status';
 import { StationStatusCard } from '../components/StationStatusCard';
 
-const DARK_TILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+const MAP_TILES = 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png';
 const DEFAULT_CENTER: [number, number] = [46.81, -71.22]; // Québec
+
+// Iridescent "you are here" ring (à la native Display maps).
+function userIcon(): L.DivIcon {
+  const html = `<div style="
+    width:24px;height:24px;border-radius:9999px;
+    background:conic-gradient(from 0deg,#67e8f9,#a78bfa,#f472b6,#67e8f9);
+    transform:translate(-50%,-50%);
+    -webkit-mask:radial-gradient(circle 7px at 50% 50%, transparent 7px, #000 8px);
+    mask:radial-gradient(circle 7px at 50% 50%, transparent 7px, #000 8px);
+  "></div>`;
+  return L.divIcon({ className: '', html, iconSize: [0, 0], iconAnchor: [0, 0] });
+}
 
 interface Props {
   stations: RankedStation[];
@@ -108,7 +120,7 @@ export function MapScreen({
         keyboard={false}
         style={{ height: '100%', width: '100%', background: '#000' }}
       >
-        <TileLayer url={DARK_TILES} subdomains="abcd" maxZoom={20} />
+        <TileLayer url={MAP_TILES} subdomains="abcd" maxZoom={20} />
         <MapEngine
           targetLat={selected ? selected.lat : null}
           targetLon={selected ? selected.lon : null}
@@ -118,11 +130,7 @@ export function MapScreen({
         />
 
         {userPos && (
-          <CircleMarker
-            center={[userPos.lat, userPos.lon]}
-            radius={6}
-            pathOptions={{ color: '#fff', weight: 2, fillColor: '#52d9ff', fillOpacity: 1 }}
-          />
+          <Marker position={[userPos.lat, userPos.lon]} icon={userIcon()} zIndexOffset={500} />
         )}
 
         {stations.map((s) => {
