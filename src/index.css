@@ -28,5 +28,5 @@ body,
 /* Additive-HUD map: push the roads toward white and the background toward pure
    black, so streets read clearly in daylight (like the native Display maps). */
 .leaflet-tile {
-  filter: brightness(3) contrast(1.5) saturate(0);
+  filter: brightness(3.6) contrast(1.7) saturate(0);
 }
