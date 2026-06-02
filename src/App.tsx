@@ -31,7 +31,7 @@ export default function App() {
       0,
       nearest.findIndex((s) => s.id === effectiveId),
     );
-    const next = (cur + delta + nearest.length) % nearest.length;
+    const next = Math.min(nearest.length - 1, Math.max(0, cur + delta));
     setSelectedId(nearest[next].id);
   };
 

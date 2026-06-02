@@ -153,10 +153,19 @@ export function MapScreen({
         </span>
       </div>
 
-      {/* Selected station status — above Leaflet panes */}
-      {selected && (
-        <div className="absolute inset-x-2 bottom-2 z-[1000]">
-          <StationStatusCard station={selected} index={selectedIndex} total={stations.length} />
+      {/* Selected station status — carousel sliding between stations */}
+      {stations.length > 0 && (
+        <div className="absolute inset-x-2 bottom-2 z-[1000] overflow-hidden">
+          <div
+            className="flex transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${selectedIndex * 100}%)` }}
+          >
+            {stations.map((s, i) => (
+              <div key={s.id} className="w-full shrink-0 px-1">
+                <StationStatusCard station={s} index={i} total={stations.length} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
