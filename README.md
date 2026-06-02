@@ -12,10 +12,10 @@ up/down** to zoom, and tap to open the full list.
 ## 📲 Install on the glasses
 
 ```
-fb-viewapp://web_app_deep_link?appName=Av%C3%A9lo&appUrl=https%3A%2F%2Favelo.vercel.app%2F
+fb-viewapp://web_app_deep_link?appName=Av%C3%A9lo&appUrl=https%3A%2F%2Favelo-theta.vercel.app%2F
 ```
 
-Or open it in the glasses' browser: **https://avelo.vercel.app**
+Or open it in the glasses' browser: **https://avelo-theta.vercel.app**
 
 ## ✨ Features
 
